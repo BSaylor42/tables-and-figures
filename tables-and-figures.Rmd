@@ -125,9 +125,11 @@ combined.grassland <- combined.grassland %>%
 
 ## **Site Types**
 
-When completing point count surveys, observers classified surround habitat into one of five site types: 
+When completing point count surveys, observers classified the surrounding habitat into one of five site types: 
 
-![](site_types_descriptions.png)
+![](site_types_descriptions.png){width=500px}
+<br> 
+Observers surveyed 191 points in total during the eight week survey period. The number of points surveyed in each site type are as follows: 
 
 ```{r bar chart number of sites, echo=FALSE, fig.align='center'}
 combined.grassland <- group_by(combined.grassland, site_type)
@@ -147,9 +149,11 @@ ggplot(site, aes(x = site_type, y = n, fill = site_type)) +
   theme(legend.position = "none") + 
   scale_fill_manual(values = custom_colors)
 ```
-
+<br> 
+Let's explore how the similarities and differences among the site types.
 
 ### **Vegetation Characteristics**
+First, let's explore how the vegetation looked at each site. Observers also conducted vegetation surveys at each point count location, measuring a variety of vegetation characters such as vegetation height, density, litter depth, ground cover, and percent cover. 
 
 ```{r table anova site vegetation differences, message=FALSE, warning=FALSE}
 table_site_veg <- combined.grassland %>%
@@ -179,9 +183,10 @@ table_site_veg %>%
 ```
 
 ### **Site Level Characteristics**
+Next, let's examine the patch-level characteristics of each site type. 
 
-```{r table anova site characteristic difference, message=FALSE}
-table_site_site <- combined.grassland %>%
+```{r table anova patch characteristic difference, message=FALSE}
+table_site_patch <- combined.grassland %>%
   select(site_type, site_ha, site_pa_ratio) %>% #retain variables used in summaries
   tbl_summary(by = site_type,
               missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
@@ -191,17 +196,26 @@ table_site_site <- combined.grassland %>%
               statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
                                all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 2. The site-level characteristics of the types of sites.") %>%
+  modify_caption("Table 2. The patch-level characteristics of the types of sites.") %>%
   modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
-```{r format table anova site characteristic difference, fig.align='center'}
-table_site_site %>% 
+```{r format table anova patch characteristic difference, fig.align='center'}
+table_site_patch %>% 
   modify_header(label = '') %>%
   as_gt() %>% 
   opt_stylize(style = 6, color = 'green') %>%
   opt_align_table_header(align = "left") %>%
   tab_options(heading.align = "left")
+```
+
+```{r histogram site size, message=FALSE, fig.align='center'}
+ggplot(combined.grassland, aes(x=site_ha)) + 
+  geom_histogram(fill = "darkgreen") + 
+  theme_classic() + 
+  xlab("Patch Size (ha)") + 
+  ylab("Number of Points") + 
+  scale_x_continuous(n.breaks = 10)
 ```
 
 
