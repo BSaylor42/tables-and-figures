@@ -1,0 +1,29 @@
+---
+title: "Graphs and Tables and Figures Oh My"
+author: "Brianna Saylor"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(gtsummary) # making tables
+library(gt) # making tables 
+library(flextable)
+library(dplyr) # data manipulation
+library(ggplot2) # making graphs
+library(tidyverse)  # importing, tidying, plotting data
+library(knitr)      # making tables in markdown
+library(leaflet)    # making maps in markdown 
+library(hexbin)
+library(tidyr) # data manipulation 
+obs <- read.csv("data/grassland-bird-species-obs_09July25.csv")
+veg <- read.csv("data/grassland-bird-veg_09July25.csv")
+point.count <- read.csv("data/grassland-bird-point-count_18Sept25.csv")
+```
+
