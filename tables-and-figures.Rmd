@@ -95,7 +95,7 @@ combined.grassland <- combined.grassland %>%
 sum(is.na(combined.grassland)) # check for NAs
 ```
 
-```{r species richness  and evenness, echo=TRUE, message=FALSE}
+```{r species richness  and evenness, include=FALSE}
 # add shannons index column 
 library(vegan) # calculates the shannon and simpson index
 # add species richness column
@@ -117,13 +117,19 @@ combined.grassland$site_type <- as.factor(combined.grassland$site_type)
 combined.grassland$site_id <- as.factor(combined.grassland$site_id)
 ```
 
+```{r converting percent cover to percentage, include=FALSE}
+combined.grassland <- combined.grassland %>%
+  mutate(across(c(pc_woody, pc_grass), ~ (.x / 20) * 100))
+```
+
+
 ## **Site Types**
 
 ### **Vegetation Characteristics**
 
-```{r table t test site vegetation differences, fig.align='center'}
+```{r table t test site vegetation differences, message=FALSE}
 table_site_veg <- combined.grassland %>%
-  select(site_type, litter_avg, veg_ht_avg, vd_vo, pc_woody, pc_grass) %>% #retain variables used in summaries
+  select(site_type, veg_ht_avg, vd_vo, litter_avg, pc_woody, pc_grass) %>% #retain variables used in summaries
   tbl_summary(by = site_type,
               missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
               digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
@@ -136,8 +142,15 @@ table_site_veg <- combined.grassland %>%
                                all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
   modify_caption("Table 3. Vegetation Characteristics of the Different Site Types") %>%
-  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain species name
+  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
+```
 
-table_site_veg
+```{r format table t test site vegetation differences, fig.align='center'}
+table_site_veg %>% 
+  modify_header(label = '') %>%
+  as_gt() %>% 
+  opt_stylize(style = 6, color = 'green') %>%
+  opt_align_table_header(align = "left") %>%
+  tab_options(heading.align = "left")
 ```
 
