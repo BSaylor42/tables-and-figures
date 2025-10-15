@@ -143,7 +143,7 @@ table_site_veg <- combined.grassland %>%
               statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
                                all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 1. Vegetation Characteristics of the Different Site Types") %>%
+  modify_caption("Table 1. The vegetation characeristics of the types of sites.") %>%
   modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
@@ -169,7 +169,7 @@ table_site_site <- combined.grassland %>%
               statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
                                all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 2. Site Level Characteristics of the Different Site Types") %>%
+  modify_caption("Table 2. The site-level characteristics of the types of sites.") %>%
   modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
@@ -185,41 +185,35 @@ table_site_site %>%
 
 ### **Bird Diversity**
 
+
 ```{r table anova bird diversity, message=FALSE}
 table_bird_diversity <- combined.grassland %>%
-  select(site_type, richness, HESP, GRSP, EAME, NOBO, YBCH, PRAW) %>% #retain variables used in summaries
+  select(site_type, richness, COYE, DICK, INBU, NOBO, PRAW, YBCH) %>% #retain variables used in summaries
   tbl_summary(by = site_type,
+              type = list(c(richness, INBU, DICK, COYE, NOBO, PRAW, YBCH) ~ "continuous"),
               missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
               digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
-              label = list(richness ~ "Species Richness (n)", #change column labels in table
-                           HESP ~ "Henslow's Sparrow (n)", 
-                           GRSP ~ "Grasshopper Sparrow (n)", 
-                           EAME ~ "Eastern Meadowlark (n)",
-                           NOBO ~ "Northern Bobwhite (n)", 
-                           YBCH ~ "Yellow-breasted Chat (n)", 
-                           PRAW ~ "Prairie Warbler (n)"),
+              label = list(richness ~ "Species Richness", #change column labels in table
+                COYE ~ "Common Yellowthroat", DICK ~ "Dickcissel", INBU ~ "Indigo Bunting", NOBO ~ "Northern Bobwhite", 
+                PRAW ~ "Prairie Warbler", YBCH ~ "Yellow-breasted Chat"
+                           ),
               statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
                                all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 3. Bird Diversity at Different Site Types") %>%
+  modify_caption("Table 3. The bird diversity at different site types.") %>%
   modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
-```{r will this code work}
-table_bird_diversity <- combined.grassland %>%
-  select(site_type, richness) %>% #retain variables used in summaries
-  tbl_summary(by = site_type,
-              missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
-              digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
-              label = list(richness ~ "Species Richness (n)" #change column labels in table
-                ),
-              statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
-                               all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
-  add_p(test = list(all_continuous() ~ "t.test"),
-    pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 3. Bird Diversity at Different Site Types") %>%
-  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
+
+```{r format table anova bird diversity, fig.align='center'}
+table_bird_diversity %>% 
+  modify_header(label = 'Number per Point') %>%
+  as_gt() %>% 
+  opt_stylize(style = 6, color = 'blue') %>%
+  opt_align_table_header(align = "left") %>%
+  tab_options(heading.align = "left")
 ```
+
 
 ```{r}
 table_bird_diversity <- combined.grassland %>%
