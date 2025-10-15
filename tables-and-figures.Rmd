@@ -125,9 +125,11 @@ combined.grassland <- combined.grassland %>%
 
 ## **Site Types**
 
+Add descriptions and pictures of site types. 
+
 ### **Vegetation Characteristics**
 
-```{r table t test site vegetation differences, message=FALSE}
+```{r table anova site vegetation differences, message=FALSE, warning=FALSE}
 table_site_veg <- combined.grassland %>%
   select(site_type, veg_ht_avg, vd_vo, litter_avg, pc_woody, pc_grass) %>% #retain variables used in summaries
   tbl_summary(by = site_type,
@@ -145,12 +147,61 @@ table_site_veg <- combined.grassland %>%
   modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
-```{r format table t test site vegetation differences, fig.align='center'}
+```{r format table anova site vegetation differences, fig.align='center'}
 table_site_veg %>% 
   modify_header(label = '') %>%
   as_gt() %>% 
   opt_stylize(style = 6, color = 'green') %>%
   opt_align_table_header(align = "left") %>%
   tab_options(heading.align = "left")
+```
+
+### **Site Level Characteristics**
+
+```{r table anova site characteristic difference, message=FALSE}
+table_site_site <- combined.grassland %>%
+  select(site_type, site_ha, site_pa_ratio) %>% #retain variables used in summaries
+  tbl_summary(by = site_type,
+              missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
+              digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
+              label = list(site_ha ~ "Site Size (ha)", #change column labels in table
+                           site_pa_ratio ~ "Site Perimeter-Area Ratio"),
+              statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
+                               all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
+  modify_caption("Table 3. Site Level Characteristics of the Different Site Types") %>%
+  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
+```
+
+```{r format table anova site characteristic difference, fig.align='center'}
+table_site_site %>% 
+  modify_header(label = '') %>%
+  as_gt() %>% 
+  opt_stylize(style = 6, color = 'green') %>%
+  opt_align_table_header(align = "left") %>%
+  tab_options(heading.align = "left")
+```
+
+
+### **Bird Diversity**
+
+```{r table anova bird diversity, message=FALSE}
+table_bird_diversity <- combined.grassland %>%
+  select(site_type, richness, HESP, GRSP, EAME, NOBO, YBCH, PRAW) %>% #retain variables used in summaries
+  tbl_summary(by = site_type,
+              missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
+              digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
+              label = list(richness ~ "Species Richness (n)", #change column labels in table
+                           HESP ~ "Henslow's Sparrow (n)", 
+                           GRSP ~ "Grasshopper Sparrow (n)", 
+                           EAME ~ "Eastern Meadowlark (n)",
+                           NOBO ~ "Northern Bobwhite (n)", 
+                           YBCH ~ "Yellow-breasted Chat (n)", 
+                           PRAW ~ "Prairie Warbler (n)"),
+              statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
+                               all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
+  modify_caption("Table 3. Site Level Characteristics of the Different Site Types") %>%
+  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
 ```
 
