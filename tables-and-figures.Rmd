@@ -220,7 +220,7 @@ ggplot(combined.grassland, aes(x=site_ha)) +
 
 
 ### **Bird Diversity**
-
+Lastly, let's explore how the bird diversity differs among site types. 
 
 ```{r table anova bird diversity, message=FALSE}
 table_bird_diversity <- combined.grassland %>%
@@ -250,28 +250,58 @@ table_bird_diversity %>%
   tab_options(heading.align = "left")
 ```
 
-
-```{r}
-table_bird_diversity <- combined.grassland %>%
-  select(site_type, NOBO) %>% #retain variables used in summaries
-  tbl_summary(by = site_type,
-              missing = "no", # remove missing values (NAs). "ifany" will include a missing values row in table.
-              digits = all_continuous() ~ 1, #number of displayed digits for continuous variables
-              label = list(NOBO ~ "Northern Bobwhite (n)" #change column labels in table
-                ),
-              statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
-                               all_categorical() ~ "{n}")) %>% #count obs. for categorical variables
-  add_p(pvalue_fun = ~style_pvalue(.x, digits = 2)) %>% #number of digits displayed for p-values
-  modify_caption("Table 3. Bird Diversity at Different Site Types") %>%
-  modify_header(update = all_stat_cols() ~ "**{level}**") #headers to only contain site names
+```{r filter data by site type, include=FALSE}
+crop <- combined.grassland %>% 
+  group_by(site_type) %>% 
+  filter(site_type == "Crop")
+grassland <- combined.grassland%>% 
+  group_by(site_type) %>% 
+  filter(site_type == "Grassland")
+hay <-  combined.grassland%>% 
+  group_by(site_type) %>% 
+  filter(site_type == "Hay/Pasture")
+savannah <-  combined.grassland%>% 
+  group_by(site_type) %>% 
+  filter(site_type == "Savannah")
+shrub <-  combined.grassland%>% 
+  group_by(site_type) %>% 
+  filter(site_type == "Shrub")
 ```
 
-```{r}
-table_bird_diversity %>% 
-  modify_header(label = '') %>%
-  as_gt() %>% 
-  opt_stylize(style = 6, color = 'blue') %>%
-  opt_align_table_header(align = "left") %>%
-  tab_options(heading.align = "left")
+```{r boxplots species richness, echo=FALSE, fig.align='center', message=FALSE}
+box_crop <- ggplot(crop, aes(y=richness)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  ylab("Species Richness") + 
+  xlab("Crop") + 
+  ylim(0,8)
+box_grassland <- ggplot(grassland, aes(y=richness)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  ylab("Species Richness") + 
+  xlab("Grassland") + 
+  ylim(0,8)
+box_hay <- ggplot(hay, aes(y=richness)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  ylab("Species Richness") + 
+  xlab("Hay/Pasture") + 
+  ylim(0,8)
+box_savannah <- ggplot(savannah, aes(y=richness)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  ylab("Species Richness") + 
+  xlab("Savannah") + 
+  ylim(0,8)
+box_shrub <- ggplot(shrub, aes(y=richness)) + 
+  geom_boxplot() + 
+  theme_classic() + 
+  ylab("Species Richness") + 
+  xlab("Shrub") + 
+  ylim(0,8)
+
+library(patchwork)
+box_crop + box_grassland + box_hay + box_savannah + box_shrub
 ```
+
 
