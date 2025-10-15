@@ -6,6 +6,8 @@
 
 # output folder 
 *output/
+*.png
+*.jpg
 
 # History files
 .Rhistory
