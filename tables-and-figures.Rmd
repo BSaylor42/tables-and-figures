@@ -125,7 +125,29 @@ combined.grassland <- combined.grassland %>%
 
 ## **Site Types**
 
-Add descriptions and pictures of site types. 
+When completing point count surveys, observers classified surround habitat into one of five site types: 
+
+![](site_types_descriptions.png)
+
+```{r bar chart number of sites, echo=FALSE, fig.align='center'}
+combined.grassland <- group_by(combined.grassland, site_type)
+site <- count(combined.grassland, site_type)
+# make a bar chart
+custom_colors <- c("#0072B2", "#D55E00", "#F0E442", "#CC79A7","#009E73")
+ggplot(site, aes(x = site_type, y = n, fill = site_type)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  theme_classic() + 
+  xlab("Site Type") + 
+  ylab("Number of Points") + 
+  ggtitle("Number of Points Surveyed by Site Type") + 
+  theme(plot.title = element_text(hjust = 0.5, size = 14), 
+        axis.text.x = element_text(hjust = 0.8), 
+        axis.title.x = element_text(size = 10), 
+        axis.title.y = element_text(size = 10)) +
+  theme(legend.position = "none") + 
+  scale_fill_manual(values = custom_colors)
+```
+
 
 ### **Vegetation Characteristics**
 
