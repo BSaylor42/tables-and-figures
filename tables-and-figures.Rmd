@@ -110,3 +110,39 @@ combined.grassland <- combined.grassland %>%
   mutate(across(c("shannon"), round, 2))
 ```
 
+```{r cleaning combined data, include=FALSE}
+combined.grassland$point_id <- as.factor(combined.grassland$point_id)
+combined.grassland$site_type <- as.factor(combined.grassland$site_type)
+combined.grassland$site_id <- as.factor(combined.grassland$site_id)
+```
+
+```{r table t test site vegetation differences, echo=FALSE, message=FALSE, fig.align='center'}
+table_site_veg <- combined.grassland %>%
+  # select variables to be summarized
+  select(
+    site_type,
+    litter_avg,
+    veg_ht_avg,
+    vd_vo,
+    pc_woody,
+    pc_grass
+  ) %>%
+  # retain specific variable used to define categories for comparison
+  tbl_summary(
+    by = site_type,
+    missing = "no",
+  # remove missing values (NAs). "ifany" will include a missing values row in table.
+    digits = all_continuous() ~ 1,
+  # number of displayed digits for continuous variables
+    statistic = list(all_continuous() ~ "{mean} ({sd})", #can use any character for parentheses
+                     all_categorical() ~ "{n}"), #count obs. for categorical variables
+    label = list(
+      veg_ht_avg ~ "Vegetation Height (cm)",
+      vd_vo ~ "Visual Observation (cm)",
+      litter_avg ~ "Litter Depth (cm)",
+      pc_woody ~ "Percent Woody Cover",
+      pc_grass ~ "Percent Grass Cover"))
+
+table_site_veg
+```
+
