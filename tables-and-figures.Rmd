@@ -27,3 +27,86 @@ veg <- read.csv("data/grassland-bird-veg_09July25.csv")
 point.count <- read.csv("data/grassland-bird-point-count_18Sept25.csv")
 ```
 
+```{r clean observation data, echo=FALSE, include=FALSE}
+# check data for issues 
+summary(obs)
+obs$point_id <- as.factor(obs$point_id) # point id factor
+obs$species <- as.factor(obs$species) # species factor 
+obs$flyover <- as.factor(obs$flyover) # flyover factor 
+unique(obs$point_id)
+summary(obs)
+```
+
+```{r clean up vegetation data, echo=FALSE, include=FALSE}
+summary(veg)
+veg$point_id <- as.factor(veg$point_id) # point id factor 
+veg$site_type <- as.factor(veg$site_type) # site type factor 
+unique(veg$point_id)
+summary(veg)
+```
+
+```{r clean up point count data, echo=FALSE, include=FALSE}
+summary(point.count)
+point.count$point_id <- as.factor(point.count$point_id) # point id as factor
+point.count <- point.count %>% 
+  mutate(date = dmy(date)) # change date format to year-month-day
+summary(point.count)
+```
+
+```{r filtering observation data, include=FALSE}
+obs.nofly.100 <- filter(obs, flyover == "No") # remove observations that are flyovers
+obs.nofly.100 <- filter(obs.nofly.100, dist <= 100) # remove observations over 100 m from point
+# selecting all grassland species 
+obs.grassland <- filter(obs.nofly.100, species == "HESP" | species == "GRSP" | species == "EAME" |
+                             species == "NOBO" | species == "PRAW" | species == "YBCH" | 
+                          species == "INBU" | species == "FISP" | species == "RWBL" | 
+                          species == "COYE" | species == "DICK" | species == "BLGR" | species == "EAKI")
+```
+
+```{r summarize species obs by point id, include=FALSE}
+obs.grassland.sum <- obs.grassland %>% 
+  group_by(point_id, species) %>% 
+  summarise(total = sum(number), .groups = "drop") %>% 
+  tidyr::pivot_wider(names_from = species, values_from = total, values_fill = 0)
+```
+
+```{r removing columns from point count data, include=FALSE} 
+point.count <- point.count %>% 
+  dplyr::select(-observer, -start_time, -lat, -lon, -zone)
+point.count$date <- yday(point.count$date) # change date to julian date
+```
+
+```{r preparing the veg data, include=FALSE}
+veg <- veg %>% 
+  dplyr::select(-date)
+veg <- veg %>%
+  mutate(site_id = sub("^[0-9]+-", "", point_id)) # add a column for site id based off point id 
+veg$site_id <- as.factor(veg$site_id) # site id as factor
+unique(veg$site_id)
+```
+
+```{r combing into one df, include=FALSE}
+combined.grassland <- veg %>% 
+  full_join(obs.grassland.sum, by = "point_id") %>% 
+  full_join(point.count, by = "point_id")
+combined.grassland <- combined.grassland %>% 
+  mutate(across(c(COYE, INBU, FISP, PRAW, RWBL, YBCH, BLGR, EAKI, NOBO, DICK, EAME, GRSP, HESP), ~replace_na(.x, 0))) # replace NA values with 0
+sum(is.na(combined.grassland)) # check for NAs
+```
+
+```{r species richness  and evenness, echo=TRUE, message=FALSE}
+# add shannons index column 
+library(vegan) # calculates the shannon and simpson index
+# add species richness column
+combined.grassland <- combined.grassland %>% 
+  mutate(richness = rowSums(across(c(COYE, INBU, FISP, PRAW, RWBL, YBCH, BLGR, EAKI, NOBO, DICK, EAME, GRSP, HESP)) > 0))
+# add shannons index column  
+combined.grassland <- combined.grassland  %>% 
+  rowwise() %>% 
+  mutate(
+    shannon = diversity(across(c(COYE, INBU, FISP, PRAW, RWBL, YBCH, BLGR, EAKI, NOBO, DICK, EAME, GRSP, HESP)), index = "shannon")) %>%
+  ungroup()
+combined.grassland <- combined.grassland %>% 
+  mutate(across(c("shannon"), round, 2))
+```
+
