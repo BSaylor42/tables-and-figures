@@ -1,5 +1,5 @@
 ---
-title: "Graphs and Tables and Figures Oh My"
+title: "Graphs and Figures and Tables Oh My"
 author: "Brianna Saylor"
 date: "`r Sys.Date()`"
 output: 
@@ -11,6 +11,7 @@ wrap: sentence
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(width = 200) # increase page width for wide readouts
 library(tidyverse)
 library(gtsummary) # making tables
 library(gt) # making tables 
@@ -150,10 +151,10 @@ ggplot(site, aes(x = site_type, y = n, fill = site_type)) +
   scale_fill_manual(values = custom_colors)
 ```
 <br> 
-Let's explore how the similarities and differences among the site types.
+Let's explore the similarities and differences among the site types.
 
 ### **Vegetation Characteristics**
-First, let's explore how the vegetation looked at each site. Observers also conducted vegetation surveys at each point count location, measuring a variety of vegetation characters such as vegetation height, density, litter depth, ground cover, and percent cover. 
+First, let's explore how the vegetation looked at each site. Observers conducted vegetation surveys at each point count location, measuring a variety of vegetation characters such as vegetation height, density, litter depth, ground cover, and percent cover. 
 
 ```{r table anova site vegetation differences, message=FALSE, warning=FALSE}
 table_site_veg <- combined.grassland %>%
@@ -209,7 +210,8 @@ table_site_patch %>%
   tab_options(heading.align = "left")
 ```
 
-```{r histogram site size, message=FALSE, fig.align='center'}
+<br> How did the size of the sites vary overall? 
+```{r histogram site size, echo=FALSE, fig.align='center', message=FALSE}
 ggplot(combined.grassland, aes(x=site_ha)) + 
   geom_histogram(fill = "darkgreen") + 
   theme_classic() + 
@@ -221,6 +223,10 @@ ggplot(combined.grassland, aes(x=site_ha)) +
 
 ### **Bird Diversity**
 Lastly, let's explore how the bird diversity differs among site types. 
+
+<div style="text-align: center;">
+![Species found in grasslands starting at top left going clockwise: yellow-breasted chat, northern bobwhite, dickcissel, common yellowthroat, indigo bunting, and prairie warbler.](grassland_birds.png){width=700px}
+</div> <br>
 
 ```{r table anova bird diversity, message=FALSE}
 table_bird_diversity <- combined.grassland %>%
@@ -250,6 +256,17 @@ table_bird_diversity %>%
   tab_options(heading.align = "left")
 ```
 
+<br> <br> Let's explore different ways of viewing how species richness differs among sites. 
+
+```{r bar chart richness site type, echo=FALSE, fig.align='center', message=FALSE}
+ggplot(combined.grassland, aes(x = factor(richness))) +
+  geom_bar(fill = "darkblue") +
+  facet_wrap(~site_type) +
+  theme_classic() + 
+  xlab("Species Richness") + 
+  ylab("Number of Points")
+```
+<br>
 ```{r filter data by site type, include=FALSE}
 crop <- combined.grassland %>% 
   group_by(site_type) %>% 
@@ -268,7 +285,7 @@ shrub <-  combined.grassland%>%
   filter(site_type == "Shrub")
 ```
 
-```{r boxplots species richness, echo=FALSE, fig.align='center', message=FALSE}
+```{r boxplots species richness, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
 box_crop <- ggplot(crop, aes(y=richness)) + 
   geom_boxplot() + 
   theme_classic() + 
@@ -303,5 +320,24 @@ box_shrub <- ggplot(shrub, aes(y=richness)) +
 library(patchwork)
 box_crop + box_grassland + box_hay + box_savannah + box_shrub
 ```
+<br>
+```{r stacked bar charts richness, echo=FALSE, fig.align='center', message=FALSE, fig.width=12, fig.height=6,}
+ bar_raw <- ggplot(combined.grassland, aes(x=factor(richness), fill = site_type)) + 
+  geom_bar(position = "stack") + 
+  theme_classic() + 
+  xlab("Species Richness") + 
+  ylab("Number of Points") + 
+  scale_fill_manual(values = custom_colors, name = "Site Type") + 
+  ggtitle("Raw Counts")
 
+bar_proportion <- ggplot(combined.grassland, aes(x=factor(richness), fill = site_type)) + 
+  geom_bar(position = "fill") + 
+  theme_classic() + 
+  xlab("Species Richness") + 
+  ylab("Number of Points") + 
+  scale_fill_manual(values = custom_colors, name = "Site Type") + 
+  ggtitle("Proportion of Counts")
+
+bar_raw + bar_proportion
+```
 
